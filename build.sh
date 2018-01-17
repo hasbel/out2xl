@@ -1,0 +1,1 @@
+pyinstaller --onefile --console --specpath="./spec" ./src/out2xl/out2xl.py
