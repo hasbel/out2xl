@@ -1,28 +1,37 @@
 # Developer: Hassib Belhaj
-# Version: V 0.1.4 (12.01.2018)
+# Version: V 1.0.2 (28.03.2018)
 
-from __future__ import unicode_literals
+import os
 
 from outlook import OutlookCalendar
 from excel import ExcelSheet
+from configuration import Configuration
 
 
-# CONFIGURATION:
-SHEET_NAME = "1. Halbjahr 2018"
-CALENDAR_END = "2018-06-30"
-CALENDAR_START = "2018-01-01"
-SHARED_CALENDAR_OWNER = "family-name, name"
-################
+### LOCATION OF THE CONFIG FILE ###
+CONFIG_FILE='out2xl.ini'
+## ------------------------------##
 
 
 def main():
-    sheet = ExcelSheet(SHEET_NAME)
-    calendar = OutlookCalendar(SHARED_CALENDAR_OWNER)
-    absence_list = calendar.get_absence_list(CALENDAR_START, CALENDAR_END)
-    for absence in absence_list:
-        sheet.mark_absence(absence)
-    raw_input('Press ENTER to exit')
+    os.system('mode con: cols=120 lines=300')
+    config = Configuration(CONFIG_FILE)
+    for calendar in config.calendars:
+        sheet = ExcelSheet(calendar[0], calendar[1], config)
+        outlook_calendar = OutlookCalendar(config.shared_calendar_owner)
+        absence_list = outlook_calendar.get_absence_list(calendar[1], calendar[2])
+        for absence in absence_list:
+            sheet.mark_absence(absence)
 
 
 if __name__ == '__main__':
-    main()
+    try:
+        main()
+    except EnvironmentError as e:
+        print("ERROR: {error}".format(error=e))
+        print('Execution Stopped !')
+    except Exception as e:
+        print('Unknown Error Occured: ')
+        print(e)
+    # Stop the windows command line from closing automatically
+    raw_input('Press ENTER to exit')
